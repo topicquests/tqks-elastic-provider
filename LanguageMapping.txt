@@ -1,0 +1,108 @@
+From https://www.elastic.co/guide/en/elasticsearch/reference/6.2/analyzer.html
+PUT /my_index
+{
+  "mappings": {
+    "_doc": {
+      "properties": {
+        "text": { 
+          "type": "text",
+          "fields": {
+            "english": { 
+              "type":     "text",
+              "analyzer": "english"
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+GET my_index/_analyze 
+{
+  "field": "text",
+  "text": "The quick Brown Foxes."
+}
+
+GET my_index/_analyze 
+{
+  "field": "text.english",
+  "text": "The quick Brown Foxes."
+}
+
+which suggests:
+
+"text": { 
+          "type": "text",
+          "fields": {
+            "english": { 
+              "type":     "text",
+              "analyzer": "english"
+            },
+            "french": {
+              "type": "text",
+              "analyzer": "french"
+            },
+            "spanish": {
+              "type": "text",
+              "analyzer": "spanish"
+            },
+            "spanish": {
+              "type": "text",
+              "analyzer": "spanish"
+            },
+            "german": {
+              "type": "text",
+              "analyzer": "german"
+            },
+            "italian": {
+              "type": "text",
+              "analyzer": "italian"
+            },
+            "chinese": {
+              "type": "text",
+              "analyzer": "chinese"
+            },
+            "russian": {
+              "type": "text",
+              "analyzer": "russian"
+            },  etc
+          }
+        }
+
+ Clone that for "details" and "label"
+  except that this all happens inside a mapping that looks like this:
+  
+ {
+    "core": {
+        "properties": {
+            "lox": {
+                "index": "not_analyzed",
+                "type": "string",
+                "store": true
+            },
+            "language": {
+             	"index": "not_analyzed",
+                "type": "string",
+                "store": true
+            },
+            "lists": {
+                "properties": {
+		            "label": {
+		                "index": "analyzed",
+		                "type": "string",
+		                "store": true
+		            },
+		            "details": {
+		                "index": "analyzed",
+		                "type": "string",
+		                "store": true
+		            }
+		        }
+		    }
+       }
+   }
+}
+
+For English, the field would be label
+For Chinese, the field would be label.chinese, etc
