@@ -20,6 +20,13 @@ public class TestHarness {
          // new Exists();
          // new RemoveDoc();
          // new PartialUpdateTest();
+		//new SetupTest();
 	}
 
 }
+/*
+co.elastic.clients.elasticsearch._types.ElasticsearchException: 
+[es/cat.indices] failed: [security_exception] unable to authenticate user [elastic] for REST request 
+[/_cat/indices?format=json]
+
+*/

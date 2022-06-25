@@ -1,52 +1,49 @@
 {
-    
-    	"mappings": {
-    		"properties": {
-		   	 	"lox": {
-					"type": "keyword",
-					"store": true
-				    },
-		    	"label": {
-		    		"type": "text",
-		    		"analyzer": "standard",
-		    		"fields": {
-				    	"en": {
-					        "type": "text",
-					        "analyzer": "english"
-					    },
-					    "fr": {
-					        "type": "text",
-					        "analyzer": "french"
-					    },
-					    "de": {
-					        "type": "text",
-					        "analyzer": "german"
-					    }
-				    }
-		   	 	},
-			    "details": {
-		    		"type": "text",
-		    		"analyzer": "standard",
-		    		"fields" : {
-				    "en": {
+	"mappings": {
+		"properties": {
+	   	 	"lox": {
+				"type": "keyword",
+				"store": true
+			},
+	    	"label": {
+	    		"type": "text",
+	    		"analyzer": "standard",
+	    		"fields": {
+			    	"en": {
 				        "type": "text",
-				        "analyzer": "english",
-				        "store": true
+				        "analyzer": "english"
 				    },
 				    "fr": {
 				        "type": "text",
-				        "analyzer": "french",
-				        "store": true
+				        "analyzer": "french"
 				    },
 				    "de": {
 				        "type": "text",
-				        "analyzer": "german",
-				        "store": true
-				    }
+				        "analyzer": "german"
 				    }
 			    }
+	   	 	},
+		    "details": {
+	    		"type": "text",
+	    		"analyzer": "standard",
+	    		"fields" : {
+			    "en": {
+			        "type": "text",
+			        "analyzer": "english",
+			        "store": true
+			    },
+			    "fr": {
+			        "type": "text",
+			        "analyzer": "french",
+			        "store": true
+			    },
+			    "de": {
+			        "type": "text",
+			        "analyzer": "german",
+			        "store": true
+			    }
+			}
 		}
-    
 	}
-
+	}
 }

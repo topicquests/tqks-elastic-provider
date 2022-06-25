@@ -49,6 +49,7 @@ public class TextQueryUtil {
 		IResult r;
 		SearchRequest sr;		
 		sr = dsl.getTextQueryString(query, start, count, indices, fields);
+		System.out.println("Query: "+sr.toString());
 		r = provider.listSearch(sr, index);
 		if (r.hasError())
 			result.addErrorString(r.getErrorString());

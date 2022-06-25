@@ -3,8 +3,18 @@
  */
 package org.topicquests.es;
 
+import java.io.InputStream;
 import java.io.StringReader;
+import java.io.Reader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.KeyStore;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateFactory;
 import java.util.*;
+
+import javax.net.ssl.SSLContext;
 
 import org.topicquests.es.api.IClient;
 import org.topicquests.support.ResultPojo;
@@ -16,18 +26,28 @@ import org.topicquests.support.util.TextFileHandler;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.ssl.SSLContextBuilder;
+import org.apache.http.ssl.SSLContexts;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestClientBuilder.HttpClientConfigCallback;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 import org.apache.http.message.BasicHeader;
-import org.elasticsearch.client.Request;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.Response;
-import org.elasticsearch.client.RestClient;
+//import org.elasticsearch.client.Request;
+//import org.elasticsearch.client.RequestOptions;
+//import org.elasticsearch.client.Response;
+//import org.elasticsearch.client.RestClient;
+//import org.elasticsearch.client.RestClientBuilder.HttpClientConfigCallback;
+
 import co.elastic.clients.transport.rest_client.RestClientTransport;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.mapping.TypeMapping;
+import co.elastic.clients.elasticsearch.core.GetRequest;
+import co.elastic.clients.elasticsearch.core.GetResponse;
 import co.elastic.clients.elasticsearch.core.IndexRequest;
+import co.elastic.clients.elasticsearch.core.IndexResponse;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.indices.CreateIndexRequest;
 import co.elastic.clients.elasticsearch.indices.CreateIndexResponse;
@@ -36,8 +56,10 @@ import co.elastic.clients.elasticsearch.indices.IndexSettings;
 import co.elastic.clients.elasticsearch.indices.PutIndicesSettingsRequest;
 import co.elastic.clients.elasticsearch.indices.TemplateMapping;
 import co.elastic.clients.elasticsearch.indices.put_index_template.IndexTemplateMapping;
+import co.elastic.clients.json.JsonData;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import co.elastic.clients.transport.ElasticsearchTransport;
+import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 
@@ -71,19 +93,64 @@ public class ProviderClient implements IClient {
 		String name = cx.get(0);
 		String p = cx.get(1);
 		int port = Integer.parseInt(p);
-		//String admin = environment.getStringProperty("AdminName");
+		String cert = environment.getStringProperty("ESCertPath");
+		System.out.println("Cert: "+cert);
 		String pwd = environment.getStringProperty("AdminPWD");
-		BasicCredentialsProvider credsProv = new BasicCredentialsProvider();
-        credsProv.setCredentials(
-            AuthScope.ANY, new UsernamePasswordCredentials("elastic", pwd)
-        );
-        restClient = RestClient.builder(new HttpHost("localhost", port))
-            .setHttpClientConfigCallback(hc -> hc.setDefaultCredentialsProvider(credsProv))
-            .build();
-        transport = new RestClientTransport(restClient, new JacksonJsonpMapper());
-        client = new ElasticsearchClient(transport);
+		String uname = environment.getStringProperty("AdminName");
+		String ksPwd = environment.getStringProperty("KeystorePWD");
+		String keyPath = environment.getStringProperty("KeyPath");
+	    //Path trustStorePath = Paths.get(keyPath);
+
+		Path caCertificatePath = Paths.get(cert);
+		Certificate trustedCa = null;
+		try {
+			CertificateFactory factory =
+			    CertificateFactory.getInstance("X.509");
+			
+			try (InputStream is = Files.newInputStream(caCertificatePath)) {
+			    trustedCa = factory.generateCertificate(is);
+			}
+			
+			
+			KeyStore trustStore = KeyStore.getInstance("pkcs12");
+			System.out.println("ABC "+keyPath);
+			trustStore.load(null, null);
+			trustStore.setCertificateEntry("ca", trustedCa); //elasticsearch-ca
+			SSLContextBuilder sslContextBuilder = SSLContexts.custom()
+			    .loadTrustMaterial(trustStore, null); // needs keystore password?
+
+			final SSLContext sslContext = sslContextBuilder.build();
+			final BasicCredentialsProvider credsProv = new BasicCredentialsProvider();
+	        credsProv.setCredentials(
+	            AuthScope.ANY, new UsernamePasswordCredentials(uname, pwd)
+	        );
+	        
+	        restClient = RestClient.builder(
+	        	    new HttpHost("localhost", 9200, "https")) // CHANGE to config values
+	                .setHttpClientConfigCallback(new HttpClientConfigCallback() {
+	        	        @Override
+	        	        public HttpAsyncClientBuilder customizeHttpClient(
+	        	            HttpAsyncClientBuilder httpClientBuilder) {
+	        	            return httpClientBuilder.setSSLContext(sslContext)
+	        	            		.setDefaultCredentialsProvider(credsProv);
+	        	        }
+	        	    }).build();
+	        
+	        transport = new RestClientTransport(restClient, new JacksonJsonpMapper());
+	        client = new ElasticsearchClient(transport);
+	        //test it
+			String cat = client.cat().indices().toString();
+
+	        System.out.println("CAT "+cat);
+
+		
+		} catch (Exception e) {
+			e.printStackTrace();
+			environment.logError(e.getMessage(), e);
+		}
+
 		//createIndex();
-		environment.logDebug("ProviderClient.setup+");
+		environment.logDebug("ProviderClient.setup+ "+client);
 	}
 	
 	/**
@@ -91,32 +158,57 @@ public class ProviderClient implements IClient {
 	 * @see https://github.com/elastic/elasticsearch-java/blob/2b5f3d2211d3c949b0d8e404e8582ab66faf762d/java-client/src/main/java/co/elastic/clients/elasticsearch/indices/ElasticsearchIndicesClient.java
 	 * @see https://github.com/elastic/elasticsearch-java/blob/0c10f1893f3e2db71707cdd61c1f8beaf501ff38/java-client/src/test/java/co/elastic/clients/documentation/api_conventions/ApiConventionsTest.java
 	 * @param indexName
+	 * @param mappings
+	 * @param numberOfShards
+	 * @param numberOfReplicas
 	 */
 	public IResult createIndex(String indexName, String mappings, String numberOfShards, String numberOfReplicas)  {
-		System.out.println("ProviderClient.createIndex "+mappings);
+		//System.out.println("ProviderClient.createIndex "+mappings);
 		IResult result = new ResultPojo();
 		IndexSettings.Builder isb = new IndexSettings.Builder();
 		isb.numberOfShards(numberOfShards);
 		isb.numberOfReplicas(numberOfReplicas);
-		
-		//@see https://github.com/elastic/elasticsearch-java/blob/66da097630dccc29da677f4a32ed8b468bceff3d/java-client/src/test/java/co/elastic/clients/json/WithJsonTest.java
-		CreateIndexRequest.Builder b = new CreateIndexRequest.Builder()
-				.index(indexName)
-				.settings(isb.build())
-				.withJson(new StringReader(mappings));
+		//@see https://www.elastic.co/guide/en/elasticsearch/client/java-api-client/current/building-objects.html
 		try {
-			CreateIndexResponse createIndexResponse = client.indices().create(b.build());
+			boolean indexExists = false;
+			String cat = client.cat().indices().toString();
+			environment.logDebug("CATTT: "+cat);
+			System.out.println("CATTT: "+cat);
+			if (cat != null) {
+				JSONParser p = new JSONParser(JSONParser.MODE_JSON_SIMPLE);
+				//Array of Index objects.
+				JSONArray ja = (JSONArray) p.parse(cat);
+				if (ja != null && !ja.isEmpty()) {
+					Iterator<Object> itr = ja.iterator();
+					JSONObject jo;
+					while (itr.hasNext()) {
+						jo = (JSONObject)itr.next();
+						indexExists = indexName.equals(jo.getAsString("index"));
+						if (indexExists)
+							break;
+					}
+				}
+			}
+			if (indexExists)
+				return result;
+			CreateIndexResponse createIndexResponse = client.indices().create(
+				    new CreateIndexRequest.Builder()
+				        .index(indexName)
+				        .settings(isb.build())
+						.withJson(new StringReader(mappings))
+				        .build()
+				);
 			result.setResultObject(new Boolean(createIndexResponse.acknowledged()));
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			environment.logError(e.getMessage(), e);
-			
 		}
 		return result;
 	}
 	//https://www.elastic.co/guide/en/elasticsearch/client/java-rest/6.x/java-rest-high-put-mapping.html
 	//https://www.elastic.co/guide/en/elasticsearch/reference/7.x/indices-put-mapping.html
-	private void createMapping(JSONObject mapping, String index, int numShards, int numReplicas) {
+	//private void createMapping(JSONObject mapping, String index, int numShards, int numReplicas) {
 	/*	try {
 			environment.logDebug("ProviderClient.createMapping- "+index+" "+numShards+" "+" "+numReplicas+" "+mapping);
 			//https://www.elastic.co/guide/en/elasticsearch/client/java-rest/master/java-rest-high-create-index.html
@@ -133,7 +225,7 @@ public class ProviderClient implements IClient {
 			environment.logError(e.getMessage(), e);
 			e.printStackTrace();			
 		}*/
-	}
+	//}
 	
 	private JSONObject getMappings(String fileName) throws Exception {
 		TextFileHandler handler = new TextFileHandler();
@@ -148,19 +240,23 @@ public class ProviderClient implements IClient {
 	 */
 	//https://www.elastic.co/guide/en/elasticsearch/client/java-rest/current/java-rest-high-document-index.html
 	public IResult put(String id, String index, JSONObject node) {
-environment.logDebug("ProviderClient.put "+id+" "+index+" "+node.toJSONString());
+environment.logDebug("ProviderClient.put::: "+id+" "+index+" "+node.toJSONString());
+System.out.println("ProviderClient.put::: "+id+" "+index+" "+node.toJSONString());
 		IResult result = new ResultPojo();
-		/*try {
-			IndexRequest request = new IndexRequest(index);
-			request.id(id);
-			request.source(node.toJSONString(), XContentType.JSON);
-			IndexResponse indexResponse = client.index(request, RequestOptions.DEFAULT);
-			result.setResultObject(Integer.toString(indexResponse.status().getStatus()));
+		Reader r = new StringReader(node.toJSONString());
+		try {
+			IndexRequest<JsonData> request = 
+				IndexRequest.of(b -> b
+					.id(id)
+					.index(index)
+					.withJson(r));
+			IndexResponse indexResponse = client.index(request);
+			result.setResultObject(indexResponse.result().toString());
 		} catch (Exception e) {
 			e.printStackTrace();
 			environment.logError("ProviderClient.put: "+e.getMessage(), e);
 			result.addErrorString(e.getMessage());
-		}*/
+		}
 		return result;
 	}
 
@@ -244,21 +340,24 @@ environment.logDebug("ProviderClient.put "+id+" "+index+" "+node.toJSONString())
 	//https://www.elastic.co/guide/en/elasticsearch/client/java-rest/current/java-rest-high-document-get.html
 	public IResult get(String id, String index) {
 		IResult result = new ResultPojo();
-		/*try {
-			GetRequest greq = new GetRequest(index, id);
-			GetResponse gres = client.get(greq, RequestOptions.DEFAULT);// new BasicHeader("Accep", "application/json"));
+	    try {
+			GetRequest.Builder greb = new GetRequest.Builder();
+			greb.index(index);
+			greb.id(id);
+			GetResponse<JsonData> gres = client.get(greb.build(), JsonData.class);
 			
-			String json = gres.getSourceAsString();
-                        if (json != null) {
+			JsonData json = gres.source();
+                        /*if (json != null) {
                           JSONObject jo = toJSONObject(json);
                           result.setResultObject(jo);
-                        }
+                        }*/
+			environment.logDebug("Hit "+json);
 		
 		} catch (Exception e) {
 			e.printStackTrace();
 			environment.logError("ProviderClient.get: "+e.getMessage(), e);
 			result.addErrorString(e.getMessage());
-		}*/
+		}
 		return result;
 	}
 

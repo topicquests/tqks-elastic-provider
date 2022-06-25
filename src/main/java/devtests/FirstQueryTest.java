@@ -49,25 +49,25 @@ public class FirstQueryTest {
     en_labels.add("Funky label");
     en_labels.add(LAB);
     JSONObject jo_label = new JSONObject();
-    jo_label.put(EN_LANG, en_labels);
+    jo_label.put(EN_LANG, "Funky label");
                 
     jo.put("label", jo_label);
 
     JSONObject jo_detail = new JSONObject();
     en_labels = new ArrayList<String>();
     en_labels.add(DET);
-    jo_detail.put(EN_LANG, en_labels);
+    jo_detail.put(EN_LANG, "Funky label");
     jo.put("details", jo_detail);
     System.out.println("JO #1" + jo);
                 
     IResult r = provider.put(ID, INDEX, jo);
     System.out.println("Foo "+r.getErrorString());
     
-    String ID2 = Long.toString(System.currentTimeMillis());
+    String ID2 = Long.toString(System.currentTimeMillis())+19;
     en_labels = new ArrayList<String>();
     en_labels.add(LAB2);
     jo_label = new JSONObject();
-    jo_label.put(EN_LANG, en_labels);
+    jo_label.put(EN_LANG, "Funky label");
 
     jo = new JSONObject();
     jo.put("lox", ID2);
@@ -78,7 +78,7 @@ public class FirstQueryTest {
     System.out.println("JO #2" + jo);
     r = provider.put(ID2, INDEX, jo);
 
-    String ID3 = Long.toString(System.currentTimeMillis());
+    String ID3 = Long.toString(System.currentTimeMillis())+33;
     List<String> fr_labels = new ArrayList<String>();
     fr_labels.add(FR_LAB);
     jo_label = new JSONObject();

@@ -7,17 +7,18 @@
 	<!-- Model created for a local, embedded index 
 	<parameter name="Model" value="org.topicquests.persist.json.es.ElasticSearchEmbeddedModel" /> -->
 	
-	<!-- Model created for remote and cluster servers -->
-	<parameter name="Model" value="org.topicquests.persist.json.es.ElasticSearchClusterModel" /> 
+	<!-- Model created for remote and cluster servers 
+	<parameter name="Model" value="org.topicquests.persist.json.es.ElasticSearchClusterModel" /> -->
 	
-	<!-- This is a plugin model which allows developers to create
-		custom query DSLs according to specific needs -->
 	<parameter name="NumShards" value="1"/>
 	<parameter name="NumDuplicates" value="0"/>
 	
-	<parameter name="AdminName" value="My!User@admin" />
-	<parameter name="AdminPWD" value="Monkey@Shitter!" />
+	<parameter name="AdminName" value="elastic" />  <!-- CHANGEME -->
+	<parameter name="AdminPWD" value="3KM=R36Ef*9JhgwDM-93" />  <!-- CHANGEME comes from new ES install-->
+	<parameter name="KeystorePWD" value="password" /> <!-- CHANGEME -->
 	
+	<parameter name="KeyPath" value="/users/jackpark/Downloads/elasticsearch-8.2.3/config/elasticsearch.keystore" /> <!-- CHANGEME -->
+	<parameter name="ESCertPath" value="/users/jackpark/Downloads/elasticsearch-8.2.3/config/certs/http_ca.crt" /> <!-- CHANGEME -->
 	
 	<!-- Multiple entries possible for clusters -->
 	<list name="Clusters">
