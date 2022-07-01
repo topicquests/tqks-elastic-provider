@@ -1,0 +1,40 @@
+GET hnrss/_search
+{
+  "query": {
+    "match": {
+      "_id": "31633212"
+      }
+    }
+  
+}
+
+DELETE /hnrss/_doc/31633212?routing=shard-1
+
+GET hnrss/_search
+{
+  "query": {
+    "multi_match": {
+      "query":    "my", 
+      "fields": [ "title", "text" ] 
+      }
+    }
+  
+}
+
+GET hnrss/_search on id you get just one
+{
+  "query": {
+      "term": { 
+        "id": "31633212"
+      } 
+  }
+}
+
+GET hnrss/_search on terms used many times, you get an array of hits
+{
+  "query": {
+      "term": { 
+        "type": "story"
+      } 
+  }
+}

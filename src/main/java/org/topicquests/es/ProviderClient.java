@@ -28,6 +28,7 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.ssl.SSLContexts;
+import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder.HttpClientConfigCallback;
 import org.apache.http.entity.ContentType;
@@ -44,11 +45,16 @@ import org.apache.http.message.BasicHeader;
 import co.elastic.clients.transport.rest_client.RestClientTransport;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.mapping.TypeMapping;
+import co.elastic.clients.elasticsearch.core.DeleteRequest;
+import co.elastic.clients.elasticsearch.core.DeleteResponse;
 import co.elastic.clients.elasticsearch.core.GetRequest;
 import co.elastic.clients.elasticsearch.core.GetResponse;
 import co.elastic.clients.elasticsearch.core.IndexRequest;
 import co.elastic.clients.elasticsearch.core.IndexResponse;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.elasticsearch.core.search.Hit;
+import co.elastic.clients.elasticsearch.core.search.HitsMetadata;
 import co.elastic.clients.elasticsearch.indices.CreateIndexRequest;
 import co.elastic.clients.elasticsearch.indices.CreateIndexResponse;
 import co.elastic.clients.elasticsearch.indices.ElasticsearchIndicesClient;
@@ -301,36 +307,38 @@ System.out.println("ProviderClient.put::: "+id+" "+index+" "+node.toJSONString()
 	/* (non-Javadoc)
 	 * @see org.topicquests.es.api.IClient#remove(java.lang.String, java.lang.String)
 	 */
-	public IResult remove(String id, String index) {
+	public IResult remove(String id, String index) { //tested
           IResult result = new ResultPojo();
-       /*   try {
-            DeleteRequest request = new DeleteRequest(index); //, _TYPE, id);
-            DeleteResponse response = client.delete(request, RequestOptions.DEFAULT);
-            result.setResultObject(Integer.toString(response.status().getStatus()));
+          try {
+        	  DeleteRequest.Builder drb = new DeleteRequest.Builder()
+        			  .index(index)
+        			  .id(id);
+            DeleteResponse response = client.delete(drb.build());
+            result.setResultObject(response.result().toString());
           } catch (Exception e) {
             e.printStackTrace();
             environment.logError("ProviderClient.delete: " + e.getMessage(), e);
             result.addErrorString(e.getMessage());
-          }*/
+          }
           return result;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.topicquests.es.api.IClient#exists(java.lang.String, java.lang.String)
 	 */
-	public IResult exists(String id, String index) {
-          IResult result = new ResultPojo();
-      /*   try {
-            GetRequest request = new GetRequest(index);
-            request.id(id);
-           
-            GetResponse response = client.get(request, RequestOptions.DEFAULT);
-            result.setResultObject(Boolean.toString(response.isExists()));
+	public IResult exists(String id, String index) { //tested
+		IResult result = new ResultPojo();
+        try {
+        	GetRequest.Builder grb = new GetRequest.Builder()
+        			.index(index)
+        			.id(id);
+            GetResponse<JsonData> response = client.get(grb.build(), JsonData.class);
+            result.setResultObject(Boolean.toString(response.found()));
           } catch (Exception e) {
             e.printStackTrace();
             environment.logError("ProviderClient.exists: " + e.getMessage(), e);
             result.addErrorString(e.getMessage());
-          }*/
+          }
           return result;
 	}
 		
@@ -373,27 +381,30 @@ System.out.println("ProviderClient.put::: "+id+" "+index+" "+node.toJSONString()
 	/* (non-Javadoc)
 	 * @see org.topicquests.es.api.IClient#search(java.lang.String, java.lang.String)
 	 */
-	public IResult search(SearchRequest query, String index) {
+	public IResult search(SearchRequest query, String index) { //tested
           IResult result = new ResultPojo();
-         /* try {
-            SearchResponse searchResponse = client.search(query, RequestOptions.DEFAULT);
-            SearchHits hits = searchResponse.getHits();
-            Iterator<SearchHit> itr = hits.iterator();
-            SearchHit hit;
+          try {
+            SearchResponse<JsonData> searchResponse = client.search(query, JsonData.class);
+            HitsMetadata<JsonData> hits = searchResponse.hits();
+            Iterator<Hit<JsonData>> itr = hits.hits().iterator();
+            Hit<JsonData> hit;
             String json;
+            JsonData src;
             List<JSONObject> vals = new ArrayList<JSONObject>();
 
             result.setResultObject(vals);
             while (itr.hasNext()) {
               hit = itr.next();
-              json = hit.getSourceAsString();
+              src = (JsonData)hit.source();
+              json = src.toString();
+             // System.out.println("ABC: "+json);
               vals.add(toJSONObject(json));
             }
           } catch (Exception e) {
             e.printStackTrace();
             environment.logError("ProviderClient.listSearch: "+e.getMessage(), e);
             result.addErrorString(e.getMessage());
-          }*/
+          }
           return result;
 	}
 

@@ -73,7 +73,7 @@ public class FirstQueryTest {
     jo.put("lox", ID2);
 		
     jo.put("label", jo_label);
-    jo_detail.remove(EN_LANG);
+   // jo_detail.remove(EN_LANG);
     jo.put("details", jo_detail);
     System.out.println("JO #2" + jo);
     r = provider.put(ID2, INDEX, jo);
@@ -150,3 +150,61 @@ public class FirstQueryTest {
 //BBB  | [{"lox":"1517766291967","language":"en","details":"","label":["So what?"]}]
 //CCC  | [{"lox":"1517766289998","language":"en","details":["For all good men to do something nice for their families."],"label":["Now is a good time!","Funky label"]}]
 //DDD  | []
+
+/*
+ --- First Query Test ---
+ConfigPullParser provider-config.xml
+Start document
+Start tag properties
+Start tag parameter
+End tag parameter // 
+Start tag parameter
+End tag parameter // 
+Start tag parameter
+End tag parameter // 
+Start tag parameter
+End tag parameter // 
+Start tag parameter
+End tag parameter // 
+Start tag parameter
+End tag parameter // 
+Start tag parameter
+End tag parameter // 
+Start tag list
+Start tag parameter
+End tag parameter // 
+End tag list // 
+Start tag list
+Start tag parameter
+End tag parameter // 
+End tag list // 
+End tag properties // 
+Cert: /users/jackpark/Downloads/elasticsearch-8.2.3/config/certs/http_ca.crt
+ABC /users/jackpark/Downloads/elasticsearch-8.2.3/config/elasticsearch.keystore
+CAT []
+CATTT: []
+INDXA 
+INDXB true
+JO #1{"lox":"1656377178586","details":{"en":"Funky label"},"label":{"en":"Funky label"}}
+ProviderClient.put::: 1656377178586 topics {"lox":"1656377178586","details":{"en":"Funky label"},"label":{"en":"Funky label"}}
+Foo 
+JO #2{"lox":"165637718147219","details":{"en":"Funky label"},"label":{"en":"Funky label"}}
+ProviderClient.put::: 165637718147219 topics {"lox":"165637718147219","details":{"en":"Funky label"},"label":{"en":"Funky label"}}
+JO #3{"lox":"165637718152433","details":{"en":"Funky label"},"label":{"en":["So what?"],"fr":["C'est un bon moment"]}}
+ProviderClient.put::: 165637718152433 topics {"lox":"165637718152433","details":{"en":"Funky label"},"label":{"en":["So what?"],"fr":["C'est un bon moment"]}}
+--- calling refresh...
+--- DONE calling refresh...
+Query: POST /topics/_search?typed_keys=true {"from":0,"query":{"multi_match":{"fields":["label.en","details.en"],"query":"good time"}},"size":5}
+AAA  | []
+Query: POST /topics/_search?typed_keys=true {"from":0,"query":{"multi_match":{"fields":["label.en","details.en"],"query":"So what?"}},"size":5}
+BBB  | []
+Query: POST /topics/_search?typed_keys=true {"from":0,"query":{"multi_match":{"fields":["label.en","details.en"],"query":"good men"}},"size":5}
+CCC  | []
+Query: POST /topics/_search?typed_keys=true {"from":0,"query":{"multi_match":{"fields":["label.en","details.en"],"query":"bogus"}},"size":5}
+DDD  | []
+Query: POST /topics/_search?typed_keys=true {"from":0,"query":{"multi_match":{"fields":["label.fr","details.en"],"query":"un bon moment"}},"size":5}
+EEE  | []
+Query: POST /topics/_search?typed_keys=true {"from":0,"query":{"multi_match":{"fields":["lox","details.en"],"query":"1656377178586"}},"size":5}
+FFF  | []
+ 
+ */

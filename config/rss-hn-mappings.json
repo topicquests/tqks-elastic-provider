@@ -1,0 +1,50 @@
+{
+	"mappings": {
+		"properties": {
+			"by": {
+				"type": "text",
+				"store": true
+			},
+			"id": {
+				"type": "long",
+				"store": true
+			},
+			"time": {
+				"type": "long",
+				"store": true
+			},
+			"score": {
+				"type": "integer",
+				"store": true
+			},
+			"descendants": {
+				"type": "integer",
+				"store": true
+			},
+			"kids": {
+				"type": "text",
+				"store": true
+			},
+			"title": {
+				"type": "text",
+				"store": true
+			},
+			"type": {
+				"type": "keyword",
+				"store": true
+			},
+			"text": {
+				"type": "text",
+				"store": false
+			},
+			"url": {
+				"type": "text",
+				"store": true
+			},
+			"source": {
+				"type": "keyword",
+				"store": true
+			}
+		}
+	}
+}

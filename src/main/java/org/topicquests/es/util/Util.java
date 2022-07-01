@@ -3,7 +3,7 @@
  */
 package org.topicquests.es.util;
 
-import org.apache.http.ParseException;
+//import org.apache.http.ParseException;
 import org.topicquests.es.ProviderEnvironment;
 import org.topicquests.support.util.TextFileHandler;
 

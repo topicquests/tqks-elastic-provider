@@ -11,6 +11,8 @@ import co.elastic.clients.elasticsearch.core.SearchRequest;
  */
 public interface IQueryDSL {
 
+	String [] toArray(String singleIndex);
+	
 	//SearchRequest getMatchQueryString(String key, String value, String[] indices);
 	
 	SearchRequest getMatchQueryString(String key, String value, int start, int count, String[] indices);

@@ -29,6 +29,12 @@ public class QueryDSL implements IQueryDSL {
 		environment = env;
 	}
 
+	@Override
+	public 	String [] toArray(String singleIndex) {
+		String [] result = {singleIndex};
+		return result;
+	}
+
 	/* (non-Javadoc)
 	 * @see org.topicquests.es.api.IQueryDSL#getMatchQueryString(java.lang.String, java.lang.String)
 	 */

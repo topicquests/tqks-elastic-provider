@@ -14,7 +14,7 @@
 	<parameter name="NumDuplicates" value="0"/>
 	
 	<parameter name="AdminName" value="elastic" />  <!-- CHANGEME -->
-	<parameter name="AdminPWD" value="3KM=R36Ef*9JhgwDM-93" />  <!-- CHANGEME comes from new ES install-->
+	<parameter name="AdminPWD" value="fJP8PskLMAQHBtH800Ng" />  <!-- CHANGEME comes from new ES install-->
 	<parameter name="KeystorePWD" value="password" /> <!-- CHANGEME -->
 	
 	<parameter name="KeyPath" value="/users/jackpark/Downloads/elasticsearch-8.2.3/config/elasticsearch.keystore" /> <!-- CHANGEME -->
@@ -30,6 +30,7 @@
 	     FOR NOW, TQElasticProvider supports just one INDEX -->
 	<list name="IndexNames">
 		<parameter name="topics" value = "config/mappings.json" />
+		<parameter name="hnrss" value = "config/rss-hn-mappings.json" />
 	</list>
 
 </properties>

@@ -16,11 +16,12 @@ public class TestHarness {
           // new BootTest();
           //new Store_FetchTest(); deprecated due to mappings change
           // new Store_Fetch_2();
-          new FirstQueryTest();
+          //new FirstQueryTest();
          // new Exists();
          // new RemoveDoc();
          // new PartialUpdateTest();
 		//new SetupTest();
+		 new HNTest();
 	}
 
 }
