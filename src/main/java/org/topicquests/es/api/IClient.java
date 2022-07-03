@@ -78,6 +78,14 @@ public interface IClient {
 	IResult exists(String id, String index);
 	
 	/**
+	 * Perform an index query with an [@code sql} query string
+	 * @param sqlString
+	 * @param index
+	 * @return
+	 */
+	IResult sqlSelectQuery(String sqlString, String index);
+	
+	/**
 	 * Return a {@link JSONObject} identified by <code>id</code> from the
 	 * index identified by <code>index</code>
 	 * @param id

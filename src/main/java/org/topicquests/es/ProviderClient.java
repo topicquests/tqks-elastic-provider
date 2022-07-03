@@ -212,26 +212,6 @@ public class ProviderClient implements IClient {
 		}
 		return result;
 	}
-	//https://www.elastic.co/guide/en/elasticsearch/client/java-rest/6.x/java-rest-high-put-mapping.html
-	//https://www.elastic.co/guide/en/elasticsearch/reference/7.x/indices-put-mapping.html
-	//private void createMapping(JSONObject mapping, String index, int numShards, int numReplicas) {
-	/*	try {
-			environment.logDebug("ProviderClient.createMapping- "+index+" "+numShards+" "+" "+numReplicas+" "+mapping);
-			//https://www.elastic.co/guide/en/elasticsearch/client/java-rest/master/java-rest-high-create-index.html
-			CreateIndexRequest request = new CreateIndexRequest(index);
-			request.settings(Settings.builder() 
-					.put("index.number_of_shards", numShards)
-					.put("index.number_of_replicas", numReplicas)
-			);
-			request.mapping(mapping);
-			environment.logDebug("ProviderClient.createMapping-1 "+request.toString());
-			CreateIndexResponse createIndexResponse = client.indices().create(request, RequestOptions.DEFAULT);
-			environment.logDebug("ProviderClient.createMapping+ "+createIndexResponse.toString());
-		} catch (Exception e) {
-			environment.logError(e.getMessage(), e);
-			e.printStackTrace();			
-		}*/
-	//}
 	
 	private JSONObject getMappings(String fileName) throws Exception {
 		TextFileHandler handler = new TextFileHandler();
@@ -340,6 +320,14 @@ System.out.println("ProviderClient.put::: "+id+" "+index+" "+node.toJSONString()
             result.addErrorString(e.getMessage());
           }
           return result;
+	}
+	//https://www.elastic.co/guide/en/elasticsearch/reference/current/sql-getting-started.html
+	//JDBC https://www.elastic.co/guide/en/elasticsearch/reference/current/sql-jdbc.html
+	@Override
+	public IResult sqlQuery(String sqlString, String index) { 
+		IResult result = null;
+		//TODo
+		return result;
 	}
 		
 	/* (non-Javadoc)
