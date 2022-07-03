@@ -323,8 +323,9 @@ System.out.println("ProviderClient.put::: "+id+" "+index+" "+node.toJSONString()
 	}
 	//https://www.elastic.co/guide/en/elasticsearch/reference/current/sql-getting-started.html
 	//JDBC https://www.elastic.co/guide/en/elasticsearch/reference/current/sql-jdbc.html
+	//JDBC https://www.elastic.co/guide/en/elasticsearch/reference/current/_api_usage.html
 	@Override
-	public IResult sqlQuery(String sqlString, String index) { 
+	public IResult sqlSelectQuery(String sqlString, String index) { 
 		IResult result = null;
 		//TODo
 		return result;
