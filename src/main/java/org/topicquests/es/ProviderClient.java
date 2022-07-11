@@ -23,6 +23,14 @@ import org.topicquests.support.util.ConfigurationHelper;
 import org.topicquests.support.util.LRUCache;
 import org.topicquests.support.util.TextFileHandler;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.JsonElement;
+
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -179,17 +187,20 @@ public class ProviderClient implements IClient {
 			boolean indexExists = false;
 			String cat = client.cat().indices().toString();
 			environment.logDebug("CATTT: "+cat);
-			System.out.println("CATTT: "+cat);
+			System.out.println("CATTT:/n"+cat);
+			//[{"health":"yellow","status":"open","index":"hnrss","uuid":"VGyIKKRyR1i171wZt7TsdQ","pri":"1","rep":"1","docs.count":"2","docs.deleted":"1","store.size":"14.2kb","pri.store.size":"14.2kb"}]
 			if (cat != null) {
-				JSONParser p = new JSONParser(JSONParser.MODE_JSON_SIMPLE);
 				//Array of Index objects.
-				JSONArray ja = (JSONArray) p.parse(cat);
+				Gson gson = new GsonBuilder()
+		                .setLenient()
+		                .create();
+				JsonArray ja =  gson.fromJson(cat.trim(), JsonArray.class);
 				if (ja != null && !ja.isEmpty()) {
-					Iterator<Object> itr = ja.iterator();
-					JSONObject jo;
+					Iterator<JsonElement> itr = ja.iterator();
+					JsonObject jo;
 					while (itr.hasNext()) {
-						jo = (JSONObject)itr.next();
-						indexExists = indexName.equals(jo.getAsString("index"));
+						jo = (JsonObject)itr.next();
+						indexExists = indexName.equals(jo.get("index").getAsString());
 						if (indexExists)
 							break;
 					}
@@ -307,6 +318,7 @@ System.out.println("ProviderClient.put::: "+id+" "+index+" "+node.toJSONString()
 	 * @see org.topicquests.es.api.IClient#exists(java.lang.String, java.lang.String)
 	 */
 	public IResult exists(String id, String index) { //tested
+		System.out.println("EXISTS: "+id+" | "+index);
 		IResult result = new ResultPojo();
         try {
         	GetRequest.Builder grb = new GetRequest.Builder()

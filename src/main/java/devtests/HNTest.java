@@ -38,6 +38,8 @@ public class HNTest {
 	    provider = environment.getProvider();
 	    dsl = environment.getQueryDSL();
 	    textQueryUtil = environment.getTextQueryUtil();
+	    setMappings();
+
 	    IResult r;
 	    //Story
 	    final String ID_1 = "31633857";
@@ -56,7 +58,7 @@ public class HNTest {
 	    
 
 	    //Comment
-	   /* final String ID_2 = "31633212";
+	   final String ID_2 = "31633212";
 	    JSONObject jc = new JSONObject();
 	    jc.put("by", "TedShiller");
 	    jc.put("descendants", 4);
@@ -69,13 +71,12 @@ public class HNTest {
 	    jc.put("time", 1654451208);
 	    jc.put("title", "Why do you need LinkedIn? (non-recruiters)");
 	    jc.put("type", "comment");
-	    setMappings();
 	    r = provider.put(ID_2, INDEX, jo);
 	    System.out.println("Foo "+r.getErrorString()+" | "+r.getResultObject());
 	    r = provider.put(ID_2, INDEX, jc);
 	    System.out.println("Foo "+r.getErrorString()+" | "+r.getResultObject());
-	    */
-	    /*final String ID_3 = "31945189";
+	    
+	    final String ID_3 = "31945189";
 	    jo = new JSONObject();
 	    jo.put("by", "mooreds");
 	    jo.put("descendants", 0);
@@ -88,7 +89,7 @@ public class HNTest {
 	    r = provider.put(ID_3, INDEX, jo);
 	    
 	    System.out.println("Foo "+r.getErrorString()+" | "+r.getResultObject());
-	    */
+	    
 	    //Testing existence
 	    r = provider.exists(ID_1, INDEX);
 	    System.out.println("EX1 "+r.getErrorString()+" | "+r.getResultObject());
@@ -129,9 +130,12 @@ public class HNTest {
 				indexName = mpx.get(0);
 				mapPath = mpx.get(1);
 				mappings = environment.getUtil().getMappings(mapPath);
+				System.out.println("INDXX/n"+mappings);
 				r = provider.createIndex(indexName, mappings, numShards, numReps);
 				System.out.println("INDXA "+r.getErrorString());
 				System.out.println("INDXB "+r.getResultObject());
+				environment.logDebug("INDXA "+r.getErrorString());
+				environment.logDebug("INDXB "+r.getResultObject());
 			}
 
 	  }

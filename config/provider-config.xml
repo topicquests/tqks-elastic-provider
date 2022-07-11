@@ -14,7 +14,7 @@
 	<parameter name="NumDuplicates" value="0"/>
 	
 	<parameter name="AdminName" value="elastic" />  <!-- CHANGEME -->
-	<parameter name="AdminPWD" value="fJP8PskLMAQHBtH800Ng" />  <!-- CHANGEME comes from new ES install-->
+	<parameter name="AdminPWD" value="fJP8PskLMAQHBtH800Ng" />   CHANGEME comes from new ES install-->
 	<parameter name="KeystorePWD" value="password" /> <!-- CHANGEME -->
 	
 	<parameter name="KeyPath" value="/users/jackpark/Downloads/elasticsearch-8.2.3/config/elasticsearch.keystore" /> <!-- CHANGEME -->
